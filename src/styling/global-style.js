@@ -8,6 +8,16 @@ export const container_row = {
     flexDirection: "row",
 }
 
+export const appBar = {
+    width: "100vw",
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+}
+
+export const appBarChild = {
+    height: "100vh"
+}
 
 export const gap = (value) => ({ gap: value });
 export const justify = (value) => ({ justifyContent: value });
