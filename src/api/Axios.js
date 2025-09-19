@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://openlibrary.org/api/";
+const BASE_URL = "https://openlibrary.org/";
 
 const api = axios.create({
   baseURL: BASE_URL,
