@@ -22,7 +22,7 @@ export default function Random() {
   const fetchBooks = async (category) => {
     setFetchError(null);
     try {
-      const booksRaw = await getBooksByCategory(category, 20);
+      const booksRaw = await getBooksByCategory(category, 18);
       if (!booksRaw.length) throw new Error("No books found in this category");
       fetchDetailsAndRatings(booksRaw);
     } catch (err) {

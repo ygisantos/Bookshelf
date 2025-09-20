@@ -33,7 +33,7 @@ export default function Browse() {
     setSearchError(null);
 
     try {
-      const docs = await searchBooks(query, 20);
+      const docs = await searchBooks(query, 18);
       setEntered(true);
       fetchDetailsAndRatings(docs);
     } catch (err) {
@@ -70,13 +70,8 @@ export default function Browse() {
         </Button>
       </Box>
 
-      {/* Loading State */}
       {isLoading && <BookSkeleton count={12} />}
-      
-      {/* Error State */}
       {searchError && <Typography color="error">{searchError}</Typography>}
-      
-      {/* No Results State */}
       {!isLoading && query.trim() && books.length === 0 && !searchError && entered && (
         <Box sx={browseNoResult}>
           <Typography variant="h6" sx={{ color: "#888" }}>
@@ -88,10 +83,7 @@ export default function Browse() {
         </Box>
       )}
 
-      {/* Results */}
-      {!isLoading && books.length > 0 && (
-        <BookList books={books} onBookClick={setModalBook} />
-      )}
+      {!isLoading && books.length > 0 && ( <BookList books={books} onBookClick={setModalBook} /> )}
         <BookModal open={!!modalBook} onClose={() => setModalBook(null)} book={modalBook} />
     </Box>
   );
