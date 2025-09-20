@@ -5,12 +5,14 @@ import Trending from "./pages/Trending"
 import Browse from "./pages/Browse"
 import Random from "./pages/Random"
 import About from "./pages/About"
+import Redirect from "./pages/Redirect"
 
 export default function App() {
   return (
     <BrowserRouter>
       <AppBarLayout>
         <Routes>
+          <Route path="/" element={<Redirect />} />
           <Route path="/trending" element={<Trending />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/random" element={<Random />} />
