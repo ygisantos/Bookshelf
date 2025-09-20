@@ -20,11 +20,18 @@ import {
     bookModalDescription
 } from "../styling/global-style";
 
+
 export default function BookModal({ open, onClose, book }) {
     const [showMore, setShowMore] = useState(false);
     if (!book) return null;
 
-    const description = book.description || "";
+    // Handle description as string or { type, value }
+    let description = "";
+    if (typeof book.description === "string") {
+        description = book.description;
+    } else if (book.description && typeof book.description === "object" && typeof book.description.value === "string") {
+        description = book.description.value;
+    }
     const maxChars = 300;
     const isLong = description.length > maxChars;
     const displayDesc = showMore || !isLong ? description : description.slice(0, maxChars) + "...";
