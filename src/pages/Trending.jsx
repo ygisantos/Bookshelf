@@ -1,143 +1,132 @@
-import BookCard from "../components/BookCard";
 import { useEffect, useState } from "react";
-import { getDaily, getBookRating, getBookDetails } from "../api/Api";
+import { Box, Typography, Divider } from "@mui/material";
+import { getDaily, getBooksByCategory } from "../api/Api";
 import BookModal from "../modal/BookModal";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import { cardGrid, mainContainer, sectionTitle } from "../styling/global-style";
+import { mainContainer, sectionTitle } from "../styling/global-style";
+import { getBookDetails, getBookRating } from "../api/Api";
+import BookList from "../components/shared/BookList";
+import BookSkeleton from "../components/shared/BookSkeleton";
+import { useBookDetails } from "../hooks/useBookDetails";
 
 const CATEGORIES = [
   { key: "fiction", label: "Popular Fiction", terms: ["fiction", "novel", "short stories"] },
   { key: "science", label: "Popular Science & Technology", terms: ["science", "technology", "mathematics"] },
-  { key: "history", label: "Popular History", terms: ["history", "historical"] },
-  { key: "fantasy", label: "Popular Fantasy", terms: ["fantasy", "magic", "mythology"] },
-  { key: "biography", label: "Popular Biography", terms: ["biography", "memoir", "autobiography"] },
+  { key: "history_bio", label: "Popular History & Biography", terms: ["history", "historical", "biography", "memoir", "autobiography"] },
 ];
 
-
 export default function Trending() {
-  const [allBooks, setAllBooks] = useState([]);
-  const [categoryBooks, setCategoryBooks] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [modalBook, setModalBook] = useState(null);
-
+  const [categoryBooks, setCategoryBooks] = useState({});
+  const { books: allBooks, loading, error, fetchDetailsAndRatings } = useBookDetails();
+  const [fetchError, setFetchError] = useState(null);
+  const [loadingInitial, setLoadingInitial] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
-    setLoading(true);
-    setError(null);
+    setFetchError(null);
+    setLoadingInitial(true);
 
-    getDaily().then(async (data) => {
-      if (!isMounted) return;
-      const works = Array.isArray(data?.works) ? data.works : [];
+    getDaily()
+      .then(async (data) => {
+        if (!isMounted) return;
+        const works = Array.isArray(data?.works) ? data.works : [];
+        const initialBooks = works.slice(0, 30);
 
-      const detailedWorks = await Promise.all(
-        works.slice(0, 30).map(async (book) => {
+        fetchDetailsAndRatings(initialBooks);
+
+        const byCategory = {};
+        for (let i = 0; i < CATEGORIES.length; i++) {
+          const cat = CATEGORIES[i];
           try {
-            const details = await getBookDetails(book.key);
-            return { ...book, ...details };
-          } catch {
-            return book;
-          }
-        })
-      );
-
-      setAllBooks(detailedWorks.slice(0, 12));
-
-      const byCategory = {};
-      CATEGORIES.forEach((cat) => {
-        byCategory[cat.key] = detailedWorks
-          .filter(
-            (b) =>
-              Array.isArray(b.subjects) &&
-              b.subjects.some((s) => cat.terms.some((term) => s.toLowerCase().includes(term.toLowerCase())))
-          )
-          .slice(0, 6);
-      });
-      setCategoryBooks(byCategory);
-
-      setLoading(false);
-
-      const fetchRatings = async (books) => {
-        for (let i = 0; i < books.length; i++) {
-          const book = books[i];
-          if (!book.key) continue;
-          try {
-            const rating = await getBookRating(book.key);
-            if (isMounted) {
-              setAllBooks((prev) => prev.map((b) => b.key === book.key ? { ...b, rating } : b));
-              setCategoryBooks((prev) => {
-                const updated = { ...prev };
-                Object.keys(updated).forEach((catKey) => {
-                  updated[catKey] = updated[catKey].map((b) => b.key === book.key ? { ...b, rating } : b);
-                });
-                return updated;
-              });
+            let docs = [];
+            for (let t = 0; t < cat.terms.length; t++) {
+              const term = cat.terms[t];
+              try {
+                docs = await getBooksByCategory(term, 12);
+                if (docs && docs.length) break;
+              } catch (e) { }
             }
-          } catch {}
-          await new Promise((res) => setTimeout(res, 500));
+
+            const placeholders = (docs || []).slice(0, 6).map((d) => ({ ...d }));
+            byCategory[cat.key] = placeholders;
+            setCategoryBooks((prev) => ({ ...prev, [cat.key]: placeholders }));
+
+            for (let j = 0; j < placeholders.length; j++) {
+              const doc = placeholders[j];
+              setTimeout(async () => {
+                let enrichedDoc = { ...doc };
+                try {
+                  if (doc.key) {
+                    const details = await getBookDetails(doc.key);
+                    enrichedDoc = { ...enrichedDoc, ...details };
+                  }
+                } catch { }
+
+                try {
+                  if (doc.key) {
+                    const rating = await getBookRating(doc.key);
+                    enrichedDoc.rating = rating;
+                  }
+                } catch { }
+                setCategoryBooks((prev) => {
+                  const catArr = Array.isArray(prev[cat.key]) ? [...prev[cat.key]] : [];
+                  catArr[j] = enrichedDoc;
+                  return { ...prev, [cat.key]: catArr };
+                });
+              }, j * 600); 
+            }
+          } catch (err) {
+            byCategory[cat.key] = [];
+          }
+          if (i < CATEGORIES.length - 1) await new Promise((res) => setTimeout(res, 800));
         }
-      };
-      fetchRatings(detailedWorks);
-    });
+        setCategoryBooks(byCategory);
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setFetchError(err.message || "Failed to fetch trending books");
+        }
+      })
+      .finally(() => {
+        if (isMounted) setLoadingInitial(false);
+      });
 
     return () => { isMounted = false; };
-  }, []);
+  }, [fetchDetailsAndRatings]);
 
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (error || fetchError) return <Typography color="error">{error || fetchError}</Typography>;
 
   return (
     <>
       <Box sx={mainContainer}>
-        <Typography sx={sectionTitle}>Trending Books Today</Typography>
-        <Box sx={cardGrid}>
-          {allBooks.map((book, i) => (
-            <div key={book.key || i} style={{ cursor: "pointer" }} onClick={() => setModalBook(book)}>
-              <BookCard
-                image={`https://covers.openlibrary.org/b/id/${
-                  book.covers?.[0] || book.cover_id || book.cover_i
-                }-L.jpg`}
-                title={book.title}
-                author={
-                  Array.isArray(book.author_name)
-                    ? book.author_name.join(", ")
-                    : book.author_name || ""
-                }
-                publishDate={book.first_publish_year || ""}
-                trendingCount={i + 1}
-                rating={book.rating || "Loading..."}
-              />
-            </div>
-          ))}
+        <Box>
+          <Typography sx={[sectionTitle, {marginTop: "-40px"}]}>Trending Books Today</Typography>
+          {loadingInitial || loading ? (
+            <BookSkeleton count={12} />
+          ) : allBooks.length > 0 ? (
+            <BookList
+              books={allBooks.slice(0, 12).map((book, i) => ({
+                ...book,
+                trendingCount: i + 1,
+              }))}
+              onBookClick={setModalBook}
+            />
+          ) : (
+            <Typography>No trending books found.</Typography>
+          )}
         </Box>
 
+        {/* Category Sections */}
         {CATEGORIES.map((cat) => (
           <Box key={cat.key} sx={{ mt: 4 }}>
             <Typography sx={sectionTitle}>{cat.label}</Typography>
-            <Box sx={cardGrid}>
-              {(categoryBooks[cat.key] || []).length > 0 ? (
-                categoryBooks[cat.key].map((book, i) => (
-                  <div key={book.key || i} style={{ cursor: "pointer" }} onClick={() => setModalBook(book)}>
-                    <BookCard
-                      image={`https://covers.openlibrary.org/b/id/${
-                        book.covers?.[0] || book.cover_id || book.cover_i
-                      }-L.jpg`}
-                      title={book.title}
-                      author={
-                        Array.isArray(book.author_name)
-                          ? book.author_name.join(", ")
-                          : book.author_name || ""
-                      }
-                      publishDate={book.first_publish_year || ""}
-                      rating={book.rating || "Loading..."}
-                    />
-                  </div>
-                ))
-              ) : (
-                <Typography>No trending books found.</Typography>
-              )}
-            </Box>
+            {loadingInitial || loading ? (
+              <BookSkeleton count={6} />
+            ) : (categoryBooks[cat.key] || []).length > 0 ? (
+              <BookList books={categoryBooks[cat.key]} onBookClick={setModalBook} />
+            ) : (
+              <Typography>No trending books found.</Typography>
+            )}
           </Box>
         ))}
       </Box>

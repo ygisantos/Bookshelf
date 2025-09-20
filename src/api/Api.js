@@ -1,3 +1,5 @@
+import api from "./axios";
+
 export async function searchBooks(query, limit = 20) {
   try {
     const response = await api.get(`search.json?q=${encodeURIComponent(query)}&limit=${limit}`);
@@ -6,11 +8,10 @@ export async function searchBooks(query, limit = 20) {
     throw new Error(error.message || "Failed to fetch search results");
   }
 }
-import api from "./axios";
 
 export async function getDaily() {
   try {
-    const response = await api.get("trending/daily.json");
+    const response = await api.get("trending/daily.json?limit=12");
     return response.data;
   } catch (error) {
     throw new Error(error.message || "Failed to fetch trending");
@@ -40,10 +41,11 @@ export async function getBookRating(workKey) {
 
 export async function getBooksByCategory(category, limit = 20) {
   try {
-    const response = await api.get(
-      `subjects/${encodeURIComponent(category.toLowerCase())}.json?limit=${limit}`
-    );
-    return Array.isArray(response.data?.works) ? response.data.works : [];
+    const q = `subject:${encodeURIComponent(category.toLowerCase())}`;
+    const response = await api.get(`search.json?q=${q}&sort=trending&limit=${limit}`);
+    if (Array.isArray(response.data?.docs) && response.data.docs.length) return response.data.docs;
+    const fallback = await api.get(`subjects/${encodeURIComponent(category.toLowerCase())}.json?limit=${limit}`);
+    return Array.isArray(fallback.data?.works) ? fallback.data.works : [];
   } catch (error) {
     throw new Error(error.message || "Failed to fetch books by category");
   }

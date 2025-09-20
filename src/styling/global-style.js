@@ -10,9 +10,6 @@ export const browseNoResult = {
 };
 export const mainContainer = {
     width: "100%",
-    maxWidth: 1200,
-    marginLeft: "auto",
-    marginRight: "auto",
     paddingLeft:8,
     paddingRight:8,
     paddingTop:8,

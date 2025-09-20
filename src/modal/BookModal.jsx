@@ -20,18 +20,16 @@ import {
     bookModalDescription
 } from "../styling/global-style";
 
-
 export default function BookModal({ open, onClose, book }) {
     const [showMore, setShowMore] = useState(false);
     if (!book) return null;
 
-    // Handle description as string or { type, value }
     let description = "";
-    if (typeof book.description === "string") {
+    if (typeof book.description === "string")
         description = book.description;
-    } else if (book.description && typeof book.description === "object" && typeof book.description.value === "string") {
+    else if (book.description && typeof book.description === "object" && typeof book.description.value === "string") 
         description = book.description.value;
-    }
+    
     const maxChars = 300;
     const isLong = description.length > maxChars;
     const displayDesc = showMore || !isLong ? description : description.slice(0, maxChars) + "...";
@@ -40,15 +38,10 @@ export default function BookModal({ open, onClose, book }) {
         <Modal open={open} onClose={onClose}>
             <Box sx={bookModalStyle}>
                 <Box sx={bookModalHeader}>
-                    <Typography variant="h6" fontWeight="bold">
-                        {book.title}
-                    </Typography>
-                    <IconButton onClick={onClose} size="small">
-                        <CloseIcon />
-                    </IconButton>
+                    <Typography variant="h6" fontWeight="bold">{book.title}</Typography>
+                    <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
                 </Box>
 
-                {/* Main content */}
                 <Box sx={bookModalContent}>
                     <img
                         src={`https://covers.openlibrary.org/b/id/${book.covers?.[0] || book.cover_id || book.cover_i}-L.jpg`}
@@ -68,17 +61,13 @@ export default function BookModal({ open, onClose, book }) {
                         </Box>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                             <CalendarTodayIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                            <Typography variant="body2">
-                                {book.first_publish_year || "-"}
-                            </Typography>
+                            <Typography variant="body2">{book.first_publish_year || "-"}</Typography>
                         </Box>
 
                         <Box sx={bookModalSubjects}>
-                            {Array.isArray(book.subjects)
-                                ? book.subjects.slice(0, 5).map((sub, i) => (
-                                    <Chip key={i} label={sub} size="small" />
-                                ))
-                                : null}
+                            {Array.isArray(book.subjects) ? book.subjects.slice(0, 5).map((sub, i) => (
+                                <Chip key={i} label={sub} size="small" />
+                            )) : null}
                         </Box>
                     </Box>
                 </Box>
@@ -86,13 +75,8 @@ export default function BookModal({ open, onClose, book }) {
                 <Divider sx={bookModalDivider} />
 
                 <Box>
-                    <Typography variant="subtitle2" gutterBottom>
-                        Description
-                    </Typography>
-                    <Typography
-                        variant="body2"
-                        sx={bookModalDescription}
-                    >
+                    <Typography variant="subtitle2" gutterBottom>Description</Typography>
+                    <Typography variant="body2" sx={bookModalDescription}>
                         {displayDesc || "No Description to Display"}
                     </Typography>
                     {isLong && (
