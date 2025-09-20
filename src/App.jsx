@@ -12,7 +12,7 @@ export default function App() {
     <BrowserRouter>
       <AppBarLayout>
         <Routes>
-          <Route path="/" element={<Redirect />} />
+          <Route path="/" element={<Redirect />} /> 
           <Route path="/trending" element={<Trending />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/random" element={<Random />} />
