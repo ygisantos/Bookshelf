@@ -1,20 +1,31 @@
 import api from "./axios";
 
-export async function getDaily(category) {
+export async function getDaily() {
   try {
-    const response = await api.get(`daily?category=${category}&limit=6`);
+    const response = await api.get("trending/daily.json");
     return response.data;
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error.message || "Failed to fetch trending");
   }
 }
 
-export async function getBookDetails(id) {
+export async function getBookDetails(workKey) {
   try {
-    const response = await api.get(`books/${id}`);
+    const cleanKey = workKey.replace("/works/", "");
+    const response = await api.get(`works/${cleanKey}.json`);
     return response.data;
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error.message || "Failed to fetch book details");
   }
 }
 
+export async function getBookRating(workKey) {
+  try {
+    const cleanKey = workKey.replace("/works/", "");
+    const response = await api.get(`works/${cleanKey}/ratings.json`);
+    const avg = response.data?.summary?.average || 0;
+    return parseFloat(avg).toFixed(1);
+  } catch (error) {
+    return 0;
+  }
+}
