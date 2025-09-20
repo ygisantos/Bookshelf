@@ -16,7 +16,7 @@ export default function BookList({ books = [], onBookClick }) {
             title={book.title}
             author={ Array.isArray(book.author_name) ? book.author_name.join(", ") : book.author_name || "" }
             publishDate={book.first_publish_year || ""}
-            rating={book.rating || "Loading..."}
+            rating={book.rating ?? "-"}
             trendingCount={book.trendingCount}
           />
         </Box>

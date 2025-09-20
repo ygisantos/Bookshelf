@@ -21,12 +21,11 @@ export const useBookDetails = (initialBooks = []) => {
             enriched = { ...enriched, ...details };
           } catch { }
         }
+        enriched.rating = getBookRating(book.key);
         detailed.push(enriched);
         setBooks((prev) => detailed);
-        await new Promise((res) => setTimeout(res, 350));
+        await new Promise((res) => setTimeout(res, 250));
       }
-
-      setBooks((prev) => prev.map((b) => ({ ...b, rating: getBookRating(b.key) })));
     } catch (err) {
       setError(err.message || "Failed to fetch book details");
     } finally {
@@ -38,11 +37,5 @@ export const useBookDetails = (initialBooks = []) => {
     if (initialBooks.length > 0) fetchDetailsAndRatings(initialBooks);
   }, [initialBooks, fetchDetailsAndRatings]);
 
-  return {
-    books,
-    loading,
-    error,
-    setBooks,
-    fetchDetailsAndRatings,
-  };
+  return { books, loading, error, setBooks, fetchDetailsAndRatings };
 };

@@ -10,11 +10,12 @@ import { useBookDetails } from "../hooks/useBookDetails";
 export default function Random() {
 
   const categories = [
-    "Science Fiction", "Romance", "Mystery", "Fantasy", "History",
-    "Biography", "Horror", "Self-Help","Philosophy","Adventure"
+    'fiction', 'science', 'history', 'mystery', 'romance', 'fantasy', 
+    'biography', 'adventure', 'thriller', 'comedy', 'drama', 'poetry'
   ];
 
   const [currentCategory, setCurrentCategory] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [modalBook, setModalBook] = useState(null);
   const [fetchError, setFetchError] = useState(null);
   const { books, loading, error, fetchDetailsAndRatings } = useBookDetails();
@@ -30,9 +31,10 @@ export default function Random() {
     }
   };
 
-  const handleRandom = () => {
-    const randomIndex = Math.floor(Math.random() * categories.length);
-    const cat = categories[randomIndex];
+  const handleNext = () => {
+    const nextIndex = (currentIndex + 1) % categories.length;
+    const cat = categories[nextIndex];
+    setCurrentIndex(nextIndex);
     setCurrentCategory(cat);
     fetchBooks(cat);
   };
@@ -42,7 +44,7 @@ export default function Random() {
       <Typography sx={[text(42), textAlign("center")]}>Random Book Discovery</Typography>
       <Typography sx={[text(16), textAlign("center")]}>Discover new books with our surprise selection</Typography>
 
-      <Button sx={[selfAlign("center")]} variant="contained" onClick={handleRandom}>
+      <Button sx={[selfAlign("center")]} variant="contained" onClick={handleNext} disabled={loading}>
         SURPRISE ME!
       </Button>
       

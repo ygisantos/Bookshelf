@@ -47,7 +47,7 @@ export default function Trending() {
               } catch (e) { }
             }
 
-            const placeholders = (docs || []).slice(0, 6).map((d) => ({ ...d }));
+            const placeholders = (docs || []).slice(0, 6).map((d) => ({ ...d, rating: getBookRating(d.key) }));
             byCategory[cat.key] = placeholders;
             setCategoryBooks((prev) => ({ ...prev, [cat.key]: placeholders }));
 
