@@ -2,17 +2,24 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Box, Tabs, Tab, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText } from "@mui/material";
-import { useColorScheme } from '@mui/material/styles';
-import { appBar, appBarChild } from "../styling/global-style";
+import { Box, Tabs, Tab, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText,ListItemIcon,Divider } from "@mui/material";
+import { Menu as MenuIcon, TrendingUp, Search, Shuffle, Person, MenuBook, Close} from '@mui/icons-material';
+import { appBar, appBarChild, logoStyles, tabsStyles, drawerHeaderStyles, listItemStyles } from "../styling/global-style";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import MenuIcon from '@mui/icons-material/Menu';
 
 export default function AppBarLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
+  
   const tabRoutes = ["/trending", "/browse", "/random", "/about"];
+  const tabData = [
+    { label: "Trending", icon: <TrendingUp fontSize="small" /> },
+    { label: "Browse", icon: <Search fontSize="small" /> },
+    { label: "Random", icon: <Shuffle fontSize="small" /> },
+    { label: "About", icon: <Person fontSize="small" /> }
+  ];
+  
   const [tab, setTab] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -40,80 +47,99 @@ export default function AppBarLayout({ children }) {
     <Box sx={appBar}>
       <AppBar position="static">
         <Container maxWidth="xl" sx={{ px: 0 }}>
-          <Toolbar disableGutters sx={{ width: "100%", px: 2 }}>
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
+          <Toolbar 
+            disableGutters 
+            sx={{ 
+              width: "100%", 
+              px: { xs: 2, sm: 3 },
+              minHeight: { xs: 56, sm: 64 }
+            }}
+          >
+            <Box
               sx={{
-                mr: 2,
+                mr: 4,
                 display: { xs: "none", md: "flex" },
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
+                alignItems: 'center',
+                gap: 1
               }}
+              onClick={() => navigate('/trending')}
             >
-              BOOKSHELF
-            </Typography>
+              <MenuBook sx={{ fontSize: 28 }} />
+              <Typography variant="h6" noWrap component="div" sx={logoStyles}>
+                BOOKSHELF
+              </Typography>
+            </Box>
 
-            <Typography
-              variant="h5"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
-              sx={{
-                mr: 2,
-                display: { xs: "flex", md: "none" },
-                flexGrow: 1,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              BOOKSHELF
-            </Typography>
+            <Box sx={{ display: { xs: "flex", md: "none" }, flexGrow: 1, alignItems: 'center', gap: 1}} onClick={() => navigate('/trending')}>
+              <MenuBook sx={{ fontSize: 24 }} />
+              <Typography variant="h6" noWrap component="div" sx={logoStyles}>
+                BOOKSHELF
+              </Typography>
+            </Box>
 
             <Box sx={{ display: { xs: 'none', md: 'flex' }, flexGrow: 1 }}>
-              <Tabs
-                value={tab}
-                onChange={handleTabChange}
-                textColor="inherit"
-                indicatorColor="secondary"
-                sx={{ px: 2 }}
-              >
-                <Tab label="Trending" />
-                <Tab label="Browse" />
-                <Tab label="Random" />
-                <Tab label="About" />
+              <Tabs value={tab} onChange={handleTabChange} textColor="inherit" indicatorColor="secondary" sx={tabsStyles}>
+                {tabData.map((item, index) => (
+                  <Tab key={item.label} label={item.label} icon={item.icon} iconPosition="start" sx={{ gap: 1 }}/>
+                ))}
               </Tabs>
             </Box>
             
-            <Box sx={{ display: { xs: 'flex', md: 'none' }, ml: 'auto' }}>
+            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
               <IconButton
                 color="inherit"
-                aria-label="open drawer"
                 edge="end"
                 onClick={handleDrawerToggle}
+                sx={{
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'rotate(90deg)'
+                  }
+                }}
               >
                 <MenuIcon />
               </IconButton>
             </Box>
+
             <Drawer
               anchor="right"
               open={drawerOpen}
               onClose={handleDrawerToggle}
               ModalProps={{ keepMounted: true }}
             >
-              <Box sx={{ width: 200 }} role="presentation">
-                <List>
-                  {['Trending', 'Browse', 'Random', 'About'].map((text, idx) => (
-                    <ListItem key={text} disablePadding>
-                      <ListItemButton selected={tab === idx} onClick={() => handleDrawerNav(idx)}>
-                        <ListItemText primary={text} />
+              <Box sx={{ width: 280 }} role="presentation">
+                <Box sx={drawerHeaderStyles}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <MenuBook color="primary" />
+                    <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
+                      Navigation
+                    </Typography>
+                  </Box>
+                  <IconButton onClick={handleDrawerToggle} size="small">
+                    <Close />
+                  </IconButton>
+                </Box>
+                
+                <Divider />
+
+                <List sx={{ pt: 2 }}>
+                  {tabData.map((item, idx) => (
+                    <ListItem key={item.label} disablePadding>
+                      <ListItemButton 
+                        selected={tab === idx} 
+                        onClick={() => handleDrawerNav(idx)}
+                        sx={listItemStyles}
+                      >
+                        <ListItemIcon sx={{ minWidth: 40 }}>
+                          {item.icon}
+                        </ListItemIcon>
+                        <ListItemText 
+                          primary={item.label} 
+                          primaryTypographyProps={{
+                            fontWeight: tab === idx ? 600 : 400,
+                            fontSize: '0.95rem'
+                          }}
+                        />
                       </ListItemButton>
                     </ListItem>
                   ))}
@@ -123,6 +149,7 @@ export default function AppBarLayout({ children }) {
           </Toolbar>
         </Container>
       </AppBar>
+      
       <Box sx={appBarChild}>
         {children}
       </Box>
