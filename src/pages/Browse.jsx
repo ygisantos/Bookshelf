@@ -1,18 +1,7 @@
 import { useState } from "react";
-import {
-  Box,
-  TextField,
-  Typography,
-  Button,
-  CircularProgress,
-} from "@mui/material";
+import { Box, TextField, Typography, Button } from "@mui/material";
 import BookModal from "../modal/BookModal";
-import {
-  browseSearchBar,
-  mainContainer,
-  browseNoResult,
-  sectionTitle,
-} from "../styling/global-style";
+import { browseSearchBar, mainContainer, browseNoResult, sectionTitle } from "../styling/global-style";
 import { searchBooks } from "../api/Api";
 import BookList from "../components/shared/BookList";
 import BookSkeleton from "../components/shared/BookSkeleton";
