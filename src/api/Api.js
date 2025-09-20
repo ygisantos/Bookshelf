@@ -1,3 +1,11 @@
+export async function searchBooks(query, limit = 20) {
+  try {
+    const response = await api.get(`search.json?q=${encodeURIComponent(query)}&limit=${limit}`);
+    return Array.isArray(response.data?.docs) ? response.data.docs : [];
+  } catch (error) {
+    throw new Error(error.message || "Failed to fetch search results");
+  }
+}
 import api from "./axios";
 
 export async function getDaily() {
