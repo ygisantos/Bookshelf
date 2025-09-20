@@ -26,19 +26,7 @@ export const useBookDetails = (initialBooks = []) => {
         await new Promise((res) => setTimeout(res, 350));
       }
 
-      const fetchRatings = async () => {
-        for (let i = 0; i < detailed.length; i++) {
-          const book = detailed[i];
-          if (!book.key) continue;
-          try {
-            const rating = await getBookRating(book.key);
-            setBooks((prev) => prev.map((b) => (b.key === book.key ? { ...b, rating } : b)));
-          } catch {}
-          await new Promise((res) => setTimeout(res, 500));
-        }
-      };
-
-      fetchRatings();
+      setBooks((prev) => prev.map((b) => ({ ...b, rating: getBookRating(b.key) })));
     } catch (err) {
       setError(err.message || "Failed to fetch book details");
     } finally {

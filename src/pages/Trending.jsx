@@ -62,12 +62,7 @@ export default function Trending() {
                   }
                 } catch { }
 
-                try {
-                  if (doc.key) {
-                    const rating = await getBookRating(doc.key);
-                    enrichedDoc.rating = rating;
-                  }
-                } catch { }
+                if (doc.key) enrichedDoc.rating = getBookRating(doc.key);
                 setCategoryBooks((prev) => {
                   const catArr = Array.isArray(prev[cat.key]) ? [...prev[cat.key]] : [];
                   catArr[j] = enrichedDoc;

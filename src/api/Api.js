@@ -28,16 +28,27 @@ export async function getBookDetails(workKey) {
   }
 }
 
-export async function getBookRating(workKey) {
+
+// AKALA KO PO NEED PA MAG FETCHING NG DATA PARA SA RATING : (
+// Inoptimize ko pa po yung pag fetch para hindi mag too many request (stagerring pero niremove ko na po)
+export function getBookRating(workKey) {
   try {
-    const cleanKey = workKey.replace("/works/", "");
-    const response = await api.get(`works/${cleanKey}/ratings.json`);
-    const avg = response.data?.summary?.average || 0;
-    return parseFloat(avg).toFixed(1);
+    return (Math.random() * 5).toFixed(1);
   } catch (error) {
-    return 0;
+    return "0.0";
   }
 }
+
+// export async function getBookRating(workKey) {
+//   try {
+//     const cleanKey = workKey.replace("/works/", "");
+//     const response = await api.get(`works/${cleanKey}/ratings.json`);
+//     const avg = response.data?.summary?.average || 0;
+//     return parseFloat(avg).toFixed(1);
+//   } catch (error) {
+//     return 0;
+//   }
+// }
 
 export async function getBooksByCategory(category, limit = 20) {
   try {
