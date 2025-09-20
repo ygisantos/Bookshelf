@@ -7,6 +7,8 @@ import IconButton from "@mui/material/IconButton";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import CloseIcon from "@mui/icons-material/Close";
+import StarIcon from "@mui/icons-material/Star";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import {
     bookModalStyle,
     bookModalImage,
@@ -49,16 +51,20 @@ export default function BookModal({ open, onClose, book }) {
 
                     <Box sx={bookModalInfo}>
                         <Typography variant="subtitle1" color="text.secondary">
-                            {Array.isArray(book.author_name)
-                                ? book.author_name.join(", ")
-                                : book.author_name || ""}
+                            {Array.isArray(book.author_name) ? book.author_name.join(", ") : book.author_name || ""}
                         </Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                            ⭐ Rating: <strong>{book.rating || "-"}</strong>
-                        </Typography>
-                        <Typography variant="body2">
-                            📅 Published: {book.first_publish_year || "-"}
-                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", mt: 1, gap: 1 }}>
+                            <StarIcon fontSize="small" sx={{ color: '#FFD700' }} />
+                            <Typography variant="body2">
+                                <strong>{book.rating || "-"}</strong>
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <CalendarTodayIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                            <Typography variant="body2">
+                                {book.first_publish_year || "-"}
+                            </Typography>
+                        </Box>
 
                         <Box sx={bookModalSubjects}>
                             {Array.isArray(book.subjects)

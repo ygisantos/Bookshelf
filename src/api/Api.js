@@ -37,3 +37,14 @@ export async function getBookRating(workKey) {
     return 0;
   }
 }
+
+export async function getBooksByCategory(category, limit = 20) {
+  try {
+    const response = await api.get(
+      `subjects/${encodeURIComponent(category.toLowerCase())}.json?limit=${limit}`
+    );
+    return Array.isArray(response.data?.works) ? response.data.works : [];
+  } catch (error) {
+    throw new Error(error.message || "Failed to fetch books by category");
+  }
+}
